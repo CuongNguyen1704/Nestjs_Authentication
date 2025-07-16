@@ -15,6 +15,7 @@ export class UserService {
     ) {}
 
    async createUser(userData: Partial<UserEntity>): Promise<UserEntity>{
+        
         const user = this.userRepository.create(userData);
         const hashedPassword = await bcrypt.hash(user.password,10)
         user.password = hashedPassword

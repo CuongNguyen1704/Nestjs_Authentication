@@ -17,6 +17,7 @@ import { AuthModule } from './modules/auth/auth.module';
       database:'auth',
       entities: [UserEntity],
       synchronize:true
+      
     }),
     UserModul,AuthModule
   ],
