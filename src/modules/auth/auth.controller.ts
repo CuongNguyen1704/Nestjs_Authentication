@@ -4,6 +4,8 @@ import { UserService } from "../user/user.service";
 import { get, request } from "http";
 import { SignUpDto } from "./dto/signup.dto";
 import { ProfileDto } from "./dto/profile.dto";
+import { LocalAuthGuard } from "../guards/local-auth.guard";
+import { JwtAuthGuard } from "../guards/jwt-auth.guard";
 
 
 @Controller('auth')
@@ -17,6 +19,12 @@ export class AuthController {
     register (@Body() userData: SignUpDto) {
         return this.authService.signUp(userData);
     }
+    @UseGuards(LocalAuthGuard)
+    @Post('/login') 
+    login(@Request() req:any){
+        return this.authService.login(req.user)
+    }
+    @UseGuards(JwtAuthGuard)
     @Get('profile')
     profile (@Request() req:any): ProfileDto{
         const {email, name, password} = req.user
