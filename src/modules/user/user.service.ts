@@ -15,15 +15,13 @@ export class UserService {
     ) {}
 
    async createUser(userData: Partial<UserEntity>): Promise<UserEntity>{
-        
+
         const user = this.userRepository.create(userData);
-        const hashedPassword = await bcrypt.hash(user.password,10)
-        user.password = hashedPassword
         return this.userRepository.save(user)
     }
 
-    findByEmail (email:string) {
-        const user = this.userRepository.findOneBy({email})
+   async findByEmail (email:string) {
+        const user = await this.userRepository.findOneBy({email})
         return user;
     }
 
@@ -32,11 +30,11 @@ export class UserService {
         if(!user){
             return null
         }
-       const status = await bcrypt.compareSync(password, user.password);
+       const status =  bcrypt.compareSync(password, user.password);
        console.log(status)
         if(status) {
             return user
         }
-        return null
+        return null 
     }
 }

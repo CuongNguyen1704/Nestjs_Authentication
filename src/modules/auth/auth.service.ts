@@ -32,22 +32,11 @@ export class AuthService {
         name: dto.name,
         password: dto.password
     })
-    const hashPassWord = await bcrypt.hash(newUser.password,10)
-    newUser.password = hashPassWord
+    // const hashPassWord = await bcrypt.hash(newUser.password,10)
+    // newUser.password = hashPassWord
     const saveUser = this.userRepositoty.save(newUser)
     return saveUser
   }
 
-  async login(user: any) {
-    const payload = { email: user.email, sub: user.id };
-    const name = user.name
-    const email = user.email
-    const password = user.password
-    return {
-      name,
-      email,
-      password,
-      access_token: this.jwtService.sign(payload),
-    };
-  }
+
 }
