@@ -1,4 +1,4 @@
-import { BadGatewayException, Injectable } from '@nestjs/common';
+import { BadGatewayException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
@@ -40,11 +40,33 @@ export class AuthService {
   }
 
   login(user: any){
+    // console.log("user",user)
       const payload = {email: user.email, sub: user.id}
+      const refres_token = this.jwtService.sign(payload,{
+        expiresIn: "7d"
+      })
+
+      this.userService.saveRefreshToken(refres_token,user.id)
       return {
         user,
-        access_token: this.jwtService.sign(payload)
+        access_token: this.jwtService.sign(payload),
+        refres_token: refres_token
+        
       }
+      
+  }
+
+  async verifiyRefresToken( refres_token: string){
+    const veryfiyRT = await this.jwtService.verifyAsync(refres_token,{secret:"key"})
+    // console.log("verify11",veryfiyRT)
+    if(veryfiyRT){
+       const user = await this.userService.verifyRefreshToken(refres_token,veryfiyRT.sub);
+       if(user){
+            return user
+       }
+
+    }
+    return false
   }
 
 
