@@ -39,7 +39,7 @@ export class AuthService {
     return saveUser
   }
 
-  login(user: any){
+  login(user: UserEntity){
     // console.log("user",user)
       const payload = {email: user.email, sub: user.id}
       const refres_token = this.jwtService.sign(payload,{

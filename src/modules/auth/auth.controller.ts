@@ -6,6 +6,8 @@ import { SignUpDto } from "./dto/signup.dto";
 import { ProfileDto } from "./dto/profile.dto";
 import { LocalAuthGuard } from "../guards/local-auth.guard";
 import { JwtAuthGuard } from "../guards/jwt-auth.guard";
+import { RequestWithUser } from "./type/Request-with-user.interface";
+import { RefresTokenDto } from "./dto/refreshToken.dto";
 
 
 @Controller('auth')
@@ -21,15 +23,15 @@ export class AuthController {
     }
     @UseGuards(LocalAuthGuard)
     @Post('/login') 
-    login(@Request() req:any){
+    login(@Request() req:RequestWithUser){
         return this.authService.login(req.user)
     }
     @Post('refresh_token')
-   async refreshToken (@Body() {refreshToken}: {refreshToken: string}) {
-        if(!refreshToken){
+   async refreshToken (@Body() refreshTokenDo:RefresTokenDto) {
+        if(!refreshTokenDo){
             throw new BadRequestException("RefresToken is required")
         }
-        const user = await this.authService.verifiyRefresToken(refreshToken)
+        const user = await this.authService.verifiyRefresToken(refreshTokenDo.refreshToken)
         if(!user){
             throw new BadRequestException("Invalid refresh token")
         }
@@ -37,7 +39,7 @@ export class AuthController {
     }
     @UseGuards(JwtAuthGuard)
     @Get('profile')
-    profile (@Request() req:any): ProfileDto{
+    profile (@Request() req:RequestWithUser): ProfileDto{
         const {email, name, password} = req.user
         return {email,name,password};
     }
