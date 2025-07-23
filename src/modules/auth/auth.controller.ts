@@ -8,6 +8,7 @@ import { LocalAuthGuard } from "../guards/local-auth.guard";
 import { JwtAuthGuard } from "../guards/jwt-auth.guard";
 import { RequestWithUser } from "./type/Request-with-user.interface";
 import { RefresTokenDto } from "./dto/refreshToken.dto";
+import { ForgotPassWorDto } from "./dto/forgot_password.dto";
 
 
 @Controller('auth')
@@ -42,6 +43,10 @@ export class AuthController {
     profile (@Request() req:RequestWithUser): ProfileDto{
         const {email, name, password} = req.user
         return {email,name,password};
+    }
+    @Post('forgot-password')
+    async forgotPassword (@Body() ForgotPassWorDto: ForgotPassWorDto) {
+        return this.authService.forgotPassword(ForgotPassWorDto)
     }
 
 }

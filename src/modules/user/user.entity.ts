@@ -35,6 +35,13 @@ export class UserEntity {
         
     }
 
+    @Column({nullable:true})
+    forgotPasswordToken: string
+
+    @Column({nullable:true})
+    forgotPasswordExpireAt:Date
+
+
 
 
 

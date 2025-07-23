@@ -1,4 +1,4 @@
-import { BadGatewayException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadGatewayException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
@@ -8,6 +8,13 @@ import { UserEntity } from '../user/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt'
 import { LoginDto } from './dto/login.dto';
+import { ForgotPassWorDto } from './dto/forgot_password.dto';
+import * as crypto from 'crypto';
+import buildEmailTemplate from 'src/util/buil-email-template';
+import { templateEmailForgotpassword } from './template/forgot-password';
+import { SendMailDto } from '../mail/dto/send-email.dto';
+import { MailService } from '../mail/mail.service';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +23,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @InjectRepository(UserEntity)
     private readonly userRepositoty: Repository<UserEntity>,
+    private readonly mailService: MailService
   ) {}
 
   async signUp(dto: SignUpDto) {
@@ -67,6 +75,42 @@ export class AuthService {
 
     }
     return false
+  }
+
+  async forgotPassword(forgotPassword: ForgotPassWorDto) {
+      const oldUser = await this.userRepositoty.findOne({
+        where: {
+            email: forgotPassword.email
+        }
+      })
+      if(!oldUser){
+        throw new NotFoundException("Tài khoản này chưa được đăng kí")
+      }
+      const tokenReset = crypto.randomBytes(64).toString('hex')
+      const teamplateString  = buildEmailTemplate(templateEmailForgotpassword,{
+        number: tokenReset 
+      })
+
+      const data: SendMailDto = {
+          tagert: forgotPassword.email,
+          content: teamplateString,
+          subject: `Mạnh Cường forgotpassword`
+      }
+
+      await this.mailService.send(data)
+
+      const forgotPasswordExpireAt = dayjs().add(10,'minutes').toDate();
+
+      await this.userRepositoty.update(
+        {email: forgotPassword.email},
+        {
+          forgotPasswordExpireAt,
+          forgotPasswordToken: tokenReset
+        }
+      )
+      return true
+      
+
   }
 
 
