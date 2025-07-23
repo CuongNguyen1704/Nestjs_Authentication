@@ -15,6 +15,8 @@ import { templateEmailForgotpassword } from './template/forgot-password';
 import { SendMailDto } from '../mail/dto/send-email.dto';
 import { MailService } from '../mail/mail.service';
 import * as dayjs from 'dayjs';
+import { ResetPasswordDto } from './dto/reset-pass-word.dto';
+import { threadId } from 'worker_threads';
 
 @Injectable()
 export class AuthService {
@@ -111,6 +113,33 @@ export class AuthService {
       return true
       
 
+  }
+
+  async resetPassword(resetPassword: ResetPasswordDto){
+    const {password,passwordConfirmation,token} = resetPassword
+
+    if(password !== passwordConfirmation){
+      throw new BadGatewayException('Passwords do not match')
+    }
+
+    const user = await this.userRepositoty.findOne({
+      where: {
+        forgotPasswordToken: token
+      }
+    })
+    if(!user){
+      throw new BadGatewayException("Token Invalid")
+    }
+
+    const currentTime = dayjs()
+    if(currentTime.isAfter(user.forgotPasswordExpireAt)){
+      throw new BadGatewayException("The password reset code has expired")
+    }
+    await this.userRepositoty.update(user.id,{
+        forgotPasswordToken: null,
+        password: await bcrypt.hash(password,10)
+    })
+    return true
   }
 
 

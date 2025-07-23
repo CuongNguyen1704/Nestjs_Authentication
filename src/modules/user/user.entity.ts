@@ -35,8 +35,8 @@ export class UserEntity {
         
     }
 
-    @Column({nullable:true})
-    forgotPasswordToken: string
+    @Column({type:'varchar',nullable:true})
+    forgotPasswordToken: string | null
 
     @Column({nullable:true})
     forgotPasswordExpireAt:Date
