@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './modules/user/user.entity';
 import { UserModul } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { MailModule } from './modules/mail/mail.module';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { AuthModule } from './modules/auth/auth.module';
       synchronize:true
       
     }),
-    UserModul,AuthModule
+    UserModul,AuthModule,MailModule
   ],
   controllers: [AppController],
   providers: [AppService],

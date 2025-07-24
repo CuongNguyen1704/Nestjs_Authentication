@@ -8,6 +8,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { UserEntity } from "../user/user.entity";
 import { LocalStrategy } from "../passport/local.strategy";
 import { JwtStrategy } from "../passport/jwt.strategy";
+import { MailModule } from "../mail/mail.module";
 
 @Module({
     controllers: [AuthController],
@@ -19,7 +20,8 @@ import { JwtStrategy } from "../passport/jwt.strategy";
             secret: 'key',
             signOptions: {expiresIn: '1h'}
         }),
-        TypeOrmModule.forFeature([UserEntity])
+        TypeOrmModule.forFeature([UserEntity]),
+        MailModule
     ]
 })
 export class AuthModule {
